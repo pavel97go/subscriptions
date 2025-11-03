@@ -14,6 +14,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    restart: unless-stopped
 
   app:
     build: .
@@ -30,6 +31,7 @@ services:
       MIGRATIONS_DIR: ./migrations
     ports:
       - "8080:8080"
+    restart: unless-stopped
 
 volumes:
   pgdata:

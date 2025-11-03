@@ -8,11 +8,13 @@ import (
 func Setup(app *fiber.App, h *Handler) {
 	app.Use(logger.New())
 
-	app.Post("/subscriptions", h.Create)
-	app.Get("/subscriptions", h.List)
-	app.Get("/subscriptions/:id", h.Get)
-	app.Put("/subscriptions/:id", h.Update)
-	app.Delete("/subscriptions/:id", h.Delete)
+	api := app.Group("/subscriptions")
 
-	app.Get("/subscriptions/summary", h.Summary)
+	api.Get("/", h.List)
+	api.Get("/summary", h.Summary)
+
+	api.Post("/", h.Create)
+	api.Get("/:id", h.Get)
+	api.Put("/:id", h.Update)
+	api.Delete("/:id", h.Delete)
 }

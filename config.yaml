@@ -1,4 +1,5 @@
 app_port: "8080"
+log_level: "info"
 
 db:
   host: "db"
@@ -6,3 +7,4 @@ db:
   user: "user"
   password: "password"
   name: "subscriptions_db"
+  dsn: "postgres://user:password@db:5432/subscriptions_db?sslmode=disable"

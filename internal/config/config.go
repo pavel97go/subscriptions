@@ -11,13 +11,15 @@ import (
 )
 
 type Config struct {
-	AppPort string `yaml:"app_port"`
-	DB      struct {
+	AppPort  string `yaml:"app_port"`
+	LogLevel string `yaml:"log_level"`
+	DB       struct {
 		Host string `yaml:"host"`
 		Port int    `yaml:"port"`
 		User string `yaml:"user"`
 		Pass string `yaml:"password"`
 		Name string `yaml:"name"`
+		DSN  string `yaml:"dsn"`
 	} `yaml:"db"`
 }
 
@@ -31,36 +33,47 @@ func Load() *Config {
 		if err := yaml.Unmarshal(f, cfg); err != nil {
 			log.Fatalf("error parsing YAML: %v", err)
 		}
-		return cfg
 	}
 	_ = godotenv.Load()
 
-	portStr := getenv("DB_PORT", "5432")
-	port, err := strconv.Atoi(portStr)
-	if err != nil {
-		log.Fatalf("invalid DB_PORT: %v", err)
+	if v := os.Getenv("APP_PORT"); v != "" {
+		cfg.AppPort = v
 	}
-
-	cfg.AppPort = getenv("APP_PORT", "8080")
-	cfg.DB.Host = getenv("DB_HOST", "localhost")
-	cfg.DB.Port = port
-	cfg.DB.User = getenv("DB_USER", "user")
-	cfg.DB.Pass = getenv("DB_PASSWORD", "password")
-	cfg.DB.Name = getenv("DB_NAME", "subscriptions_db")
+	if v := os.Getenv("LOG_LEVEL"); v != "" {
+		cfg.LogLevel = v
+	}
+	if v := os.Getenv("DB_HOST"); v != "" {
+		cfg.DB.Host = v
+	}
+	if v := os.Getenv("DB_USER"); v != "" {
+		cfg.DB.User = v
+	}
+	if v := os.Getenv("DB_PASSWORD"); v != "" {
+		cfg.DB.Pass = v
+	}
+	if v := os.Getenv("DB_NAME"); v != "" {
+		cfg.DB.Name = v
+	}
+	if v := os.Getenv("DB_DSN"); v != "" {
+		cfg.DB.DSN = v
+	}
+	if v := os.Getenv("DB_PORT"); v != "" {
+		if port, err := strconv.Atoi(v); err == nil {
+			cfg.DB.Port = port
+		}
+	}
+	if cfg.DB.DSN == "" {
+		cfg.DB.DSN = fmt.Sprintf(
+			"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+			cfg.DB.User, cfg.DB.Pass, cfg.DB.Host, cfg.DB.Port, cfg.DB.Name,
+		)
+	}
+	if cfg.AppPort == "" {
+		cfg.AppPort = "8080"
+	}
+	if cfg.LogLevel == "" {
+		cfg.LogLevel = "info"
+	}
 
 	return cfg
-}
-
-func (c *Config) DSN() string {
-	return fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		c.DB.User, c.DB.Pass, c.DB.Host, c.DB.Port, c.DB.Name,
-	)
-}
-
-func getenv(key, def string) string {
-	if val, ok := os.LookupEnv(key); ok {
-		return val
-	}
-	return def
 }

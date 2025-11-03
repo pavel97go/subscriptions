@@ -26,12 +26,12 @@ type SubscriptionResponse struct {
 }
 
 type Subscription struct {
-	ID          uuid.UUID
-	ServiceName string
-	Price       int
-	UserID      uuid.UUID
-	StartMonth  time.Time
-	EndMonth    *time.Time
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          uuid.UUID  `db:"id"`
+	ServiceName string     `db:"service_name"`
+	Price       int        `db:"price"`
+	UserID      uuid.UUID  `db:"user_id"`
+	StartMonth  time.Time  `db:"start_month"`
+	EndMonth    *time.Time `db:"end_month"`
+	CreatedAt   time.Time  `db:"created_at"`
+	UpdatedAt   time.Time  `db:"updated_at"`
 }
