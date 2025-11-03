@@ -6,6 +6,8 @@ import (
 )
 
 func Setup(app *fiber.App, h *Handler) {
+	app.Static("/openapi.yaml", "./api/openapi.yaml")
+
 	app.Use(logger.New())
 
 	api := app.Group("/subscriptions")

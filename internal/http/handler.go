@@ -205,12 +205,26 @@ func (h *Handler) Summary(c *fiber.Ctx) error {
 		}
 		uid = &u
 	}
+
 	var svc *string
 	if s := strings.TrimSpace(c.Query("service_name")); s != "" {
 		svc = &s
 	}
+	var svcLog, uidLog string
+	if svc != nil {
+		svcLog = *svc
+	} else {
+		svcLog = "<none>"
+	}
+	if uid != nil {
+		uidLog = uid.String()
+	} else {
+		uidLog = "<none>"
+	}
 
-	logger.Log.Infof("http summary: from=%s to=%s user_id=%v service=%v", util.MonthStr(from), util.MonthStr(to), uid, svc)
+	logger.Log.Infof("http summary: from=%s to=%s user_id=%s service=%s",
+		util.MonthStr(from), util.MonthStr(to), uidLog, svcLog)
+
 	total, err := h.r.Summary(
 		reqCtx(c),
 		repo.SummaryFilter{UserID: uid, ServiceName: svc, From: from, To: to},
@@ -219,6 +233,7 @@ func (h *Handler) Summary(c *fiber.Ctx) error {
 		logger.Log.Errorf("http summary error: %v", err)
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
+
 	return c.JSON(fiber.Map{"total": total})
 }
 

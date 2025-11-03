@@ -32,6 +32,15 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
-
+  swagger:
+    image: swaggerapi/swagger-ui:latest
+    environment:
+      SWAGGER_JSON: /docs/openapi.yaml
+    volumes:
+      - ./api:/docs:ro
+    ports:
+      - "8081:8080"
+    depends_on:
+      - app
 volumes:
   pgdata:
