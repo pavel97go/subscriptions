@@ -1,0 +1,14 @@
+/app
+*.exe
+*.out
+*.log
+/bin
+/dist
+vendor/
+*.test
+*.prof
+.idea/
+.vscode/
+.env
+.env.local
+.env.*
